@@ -5,6 +5,7 @@
 #include <vector>
 
 std::stringstream board;
+bool state_end=false;
 
 char checkFullCross(std::string board){
     if (//first row matches
@@ -75,8 +76,30 @@ void onUpdateBoard(std::string curr_board, std::vector <int> coords, std::string
 
     if(possible_winner!='-'){
         std::cout<<"Agent "<<possible_winner<<" has won"<<std::endl;
-        exit(0);
+        state_end=true;
     }
+}
+
+
+void onUpdateBoard(std::string curr_board, int board_pos, std::string agent){
+	/*SBi=(UBi-1)+((UBi-1)mod 3)/3 where CBi is board string index and UBi is natural
+	counted position on 3x3 board from players' perspectives*/
+	int board_str_update_idx=(board_pos-1)+(((board_pos-1)-(board_pos-1)%3)/3);
+	
+	curr_board.replace(board_str_update_idx,1,agent);
+
+    std::cout<<curr_board<<std::endl;
+
+    board.str("");
+
+    board<<curr_board;
+    char possible_winner=checkFullCross(board.str());
+
+    if(possible_winner!='-'){
+        std::cout<<"Agent "<<possible_winner<<" has won"<<std::endl;
+        state_end=true;
+    }
+	
 }
 
 
@@ -85,12 +108,33 @@ int main(){
     //init board, resume game session
     std::map<int, std::vector<int>> check_point{{0, {1,1,'o'}},{1,{2,1,'x'}},{2,{2,2,'o'}}};
 
-    onDrawBoard(check_point);
+    std::cout<<"Begin ..."<<std::endl<<std::endl;
+	onDrawBoard(check_point);
 
     std::cout<<board.str()<<std::endl;
+	
+	int turns=check_point.size();
+	int move_input;
+	
+	
+	std::string current_player="x";
+	
+	
+	while(!state_end){
+		if(++turns>(3*3)){
+			std::cout<<"Game ends in a Draw."<<std::endl;
+			state_end=true;
+			continue;
+		}
 
+		std::cout<<"Enter coords  for player "<<current_player<<": ";
+		std::cin>>move_input;
+	
+		onUpdateBoard(board.str(),move_input,current_player);
+		current_player=current_player=="x"?"o":"x";
+	}
     //sequence of play moves
-    onUpdateBoard(board.str(),{1,2},"x");
-    onUpdateBoard(board.str(),{3,3},"o");
-    onUpdateBoard(board.str(),{3,2},"x");
+    //onUpdateBoard(board.str(),{1,2},"x");
+    //onUpdateBoard(board.str(),{3,3},"o");
+    //onUpdateBoard(board.str(),{3,2},"x");
 }
