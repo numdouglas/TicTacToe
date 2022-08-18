@@ -177,7 +177,6 @@ void onUpdateBoard(const int board_pos, std::string const & agent){
 
 
 int main(){
-
     //init board, resume game session
     //std::map<int, std::vector<int>> check_point{{0, {1,1,'o'}},{1,{2,1,'x'}},{2,{2,2,'o'}}};
 
