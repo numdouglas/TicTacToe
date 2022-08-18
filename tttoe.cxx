@@ -8,7 +8,7 @@
 std::stringstream board;
 bool state_end=false;
 
-char checkFullCross(std::string board){
+char checkFullCross(std::string const& board){
     if (//first row matches
                 board.at(0) != '-' && (
                         board.at(0) == (board.at(1) & board.at(2)) ||
@@ -104,7 +104,7 @@ void onDrawBoard(std::string const& file_name){
 		}
 }
 
-void onDrawBoard(std::map<int, std::vector<int>> & coords){
+void onDrawBoard(std::map<int, std::vector<int>> const& coords){
     int coords_counter=0;
 
     int r=1;
@@ -129,7 +129,7 @@ void onDrawBoard(std::map<int, std::vector<int>> & coords){
 	//std::cout<<"Board is : \n"<<board.str()<<std::endl<<"Displayable board is :\n"<<getDisplayableBoardString(board.str())<<std::endl;
 }
 
-void onUpdateBoard(std::string curr_board, std::vector <int> coords, std::string agent){
+void onUpdateBoard(std::string & curr_board, std::vector <int> coords, std::string agent){
     //Si = |r|*(ir-1) + (ic-1)
     int board_str_update_idx=(4*(coords[0]-1))+(coords[1]-1);
 
@@ -149,7 +149,7 @@ void onUpdateBoard(std::string curr_board, std::vector <int> coords, std::string
 }
 
 
-void onUpdateBoard(int board_pos, std::string agent){
+void onUpdateBoard(const int board_pos, std::string const & agent){
 	/*SBi=(UBi-1)+((UBi-1)mod 3)/3 where CBi is board string index and UBi is natural
 	counted position on 3x3 board from players' perspectives*/
 	//int board_str_update_idx=(board_pos-1)+(((board_pos-1)-(board_pos-1)%3)/3);
