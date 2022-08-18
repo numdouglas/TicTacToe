@@ -11,32 +11,42 @@ char checkFullCross(std::string board){
     if (//first row matches
                 board.at(0) != '-' && (
                         board.at(0) == (board.at(1) & board.at(2)) ||
-                                board.at(0) == (board.at(4) & board.at(8)) ||
-                                board.at(0) == (board.at(5) & board.at(10)))) {
+                                board.at(0) == (board.at(3) & board.at(6)) ||
+                                board.at(0) == (board.at(4) & board.at(8)))) {
             return board.at(0);
         }
         if (board.at(1) != '-' &&
-                (board.at(1) == (board.at(5) & board.at(9)))) {
+                (board.at(1) == (board.at(4) & board.at(7)))) {
             return board.at(1);
         }
         if (board.at(2) != '-' &&
-                (board.at(2) == (board.at(6) & board.at(10)) ||
-                        board.at(2) == (board.at(5) & board.at(8)))) {
+                (board.at(2) == (board.at(5) & board.at(8)) ||
+                        board.at(2) == (board.at(4) & board.at(6)))) {
             return board.at(2);
         }
         //second row matches
-        if (board.at(4) != '-' &&
-                (board.at(4) == (board.at(5) & board.at(6)))) {
-            return board.at(4);
+        if (board.at(3) != '-' &&
+                (board.at(3) == (board.at(4) & board.at(5)))) {
+            return board.at(3);
         }
         //third row matches
-        if (board.at(8) != '-' &&
-                (board.at(8) == (board.at(9) & board.at(10)))
+        if (board.at(6) != '-' &&
+                (board.at(6) == (board.at(7) & board.at(8)))
         ) {
-            return board.at(8);
+            return board.at(6);
         }
 
     return '-';
+}
+
+std::string getDisplayableBoardString(std::string items){
+	std::string displayable_board;
+	
+	for(int i=0;i<9;i=i+3){
+		displayable_board.append(items,i,3);
+		displayable_board.append("\n");
+	}
+	return displayable_board;
 }
 
 void onDrawBoard(std::map<int, std::vector<int>> & coords){
@@ -44,9 +54,10 @@ void onDrawBoard(std::map<int, std::vector<int>> & coords){
 
     int r=1;
 
-    for(int c=1;c<=(3*3);c++){
-        if(coords.size()>coords_counter&&(coords.at(coords_counter)[0]==r&
-        coords.at(coords_counter)[1]==(c-(3*(r-1))))){
+    for(int c=1;r<=3;c++){
+		
+        if(coords.size()>coords_counter&&coords.at(coords_counter)[0]==r&&
+        coords.at(coords_counter)[1]==c){
             board<<(char)coords.at(coords_counter)[2];
             coords_counter++;
         }
@@ -56,9 +67,11 @@ void onDrawBoard(std::map<int, std::vector<int>> & coords){
 
         if(c%3==0){
             r++;
-            board<<'\n';
+			c=0;
         }
     }
+
+	//std::cout<<"Board is : \n"<<board.str()<<std::endl<<"Displayable board is :\n"<<getDisplayableBoardString(board.str())<<std::endl;
 }
 
 void onUpdateBoard(std::string curr_board, std::vector <int> coords, std::string agent){
@@ -81,25 +94,26 @@ void onUpdateBoard(std::string curr_board, std::vector <int> coords, std::string
 }
 
 
-void onUpdateBoard(std::string curr_board, int board_pos, std::string agent){
+void onUpdateBoard(int board_pos, std::string agent){
 	/*SBi=(UBi-1)+((UBi-1)mod 3)/3 where CBi is board string index and UBi is natural
 	counted position on 3x3 board from players' perspectives*/
-	int board_str_update_idx=(board_pos-1)+(((board_pos-1)-(board_pos-1)%3)/3);
+	//int board_str_update_idx=(board_pos-1)+(((board_pos-1)-(board_pos-1)%3)/3);
+	std::string curr_board_str= board.str();
 	
-	curr_board.replace(board_str_update_idx,1,agent);
+	curr_board_str.replace(board_pos-1,1,agent);
 
-    std::cout<<curr_board<<std::endl;
+    std::cout<<getDisplayableBoardString(curr_board_str)<<std::endl;
 
     board.str("");
 
-    board<<curr_board;
-    char possible_winner=checkFullCross(board.str());
+    board<<curr_board_str;
+	
+    char possible_winner=checkFullCross(curr_board_str);
 
     if(possible_winner!='-'){
         std::cout<<"Agent "<<possible_winner<<" has won"<<std::endl;
         state_end=true;
-    }
-	
+    }	
 }
 
 
@@ -111,11 +125,10 @@ int main(){
     std::cout<<"Begin ..."<<std::endl<<std::endl;
 	onDrawBoard(check_point);
 
-    std::cout<<board.str()<<std::endl;
+	std::cout<<getDisplayableBoardString(board.str())<<std::endl;
 	
-	int turns=check_point.size();
+	int turns=(int)check_point.size();
 	int move_input;
-	
 	
 	std::string current_player="x";
 	
@@ -130,7 +143,7 @@ int main(){
 		std::cout<<"Enter coords  for player "<<current_player<<": ";
 		std::cin>>move_input;
 	
-		onUpdateBoard(board.str(),move_input,current_player);
+		onUpdateBoard(move_input,current_player);
 		current_player=current_player=="x"?"o":"x";
 	}
     //sequence of play moves
