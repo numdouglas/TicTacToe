@@ -3,6 +3,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <fstream>
 
 std::stringstream board;
 bool state_end=false;
@@ -39,7 +40,41 @@ char checkFullCross(std::string board){
     return '-';
 }
 
-std::string getDisplayableBoardString(std::string items){
+
+int checkTurnsTaken(std::string & curr_player){
+	int turns_x=0;
+	int turns_o=0;
+	
+	std::string s=board.str();
+	
+	for(int i=0;i<s.size();i++){
+		char curr_char=s.at(i);
+		if(curr_char=='x'){
+			turns_x++;
+		}
+		else if(curr_char=='o'){
+			turns_o++;
+		}
+	}
+	
+	curr_player=turns_x==turns_o?"x"/*since we always assume game begins with x*/:turns_x>turns_o?"o":"x";
+	
+	return turns_x+turns_o;
+}
+
+void onCheckPoint(std::string const& file_name, std::string const& overwrite_content){
+	
+	std::fstream m_file(file_name,std::ios::binary|std::ios::trunc|std::ios::in|std::ios::out);
+	
+	if(!m_file.is_open()){
+		std::cout<<"Failed to open "<<file_name<<std::endl;
+	}
+	else{
+		m_file<<overwrite_content;
+	}
+}
+
+std::string getDisplayableBoardString(std::string const& items){
 	std::string displayable_board;
 	
 	for(int i=0;i<9;i=i+3){
@@ -47,6 +82,26 @@ std::string getDisplayableBoardString(std::string items){
 		displayable_board.append("\n");
 	}
 	return displayable_board;
+}
+
+void onDrawBoard(std::string const& file_name){
+	std::fstream s(file_name, std::ios::binary| std::ios::in);
+	
+	if(!s.is_open()){
+		std::cout<<"No saves made."<<std::endl;
+		board<<"---------";
+	}
+	else{
+		std::string file_in_str;
+		s>>file_in_str;
+		
+		if(file_in_str==""){
+			board<<"---------";
+			}
+		else{
+			board<<file_in_str;
+			}
+		}
 }
 
 void onDrawBoard(std::map<int, std::vector<int>> & coords){
@@ -111,27 +166,33 @@ void onUpdateBoard(int board_pos, std::string agent){
     char possible_winner=checkFullCross(curr_board_str);
 
     if(possible_winner!='-'){
-        std::cout<<"Agent "<<possible_winner<<" has won"<<std::endl;
+        onCheckPoint("check_point.txt","---------");
+		std::cout<<"Agent "<<possible_winner<<" has won"<<std::endl;		
         state_end=true;
-    }	
+    }
+	else{
+		onCheckPoint("check_point.txt",board.str());
+		}
 }
 
 
 int main(){
 
     //init board, resume game session
-    std::map<int, std::vector<int>> check_point{{0, {1,1,'o'}},{1,{2,1,'x'}},{2,{2,2,'o'}}};
+    //std::map<int, std::vector<int>> check_point{{0, {1,1,'o'}},{1,{2,1,'x'}},{2,{2,2,'o'}}};
 
     std::cout<<"Begin ..."<<std::endl<<std::endl;
-	onDrawBoard(check_point);
+	//onDrawBoard(check_point);
+	onDrawBoard("check_point.txt");
 
 	std::cout<<getDisplayableBoardString(board.str())<<std::endl;
 	
-	int turns=(int)check_point.size();
-	int move_input;
-	
+	//int turns=(int)check_point.size();
 	std::string current_player="x";
+	int turns=checkTurnsTaken(current_player);
 	
+	
+	int move_input;
 	
 	while(!state_end){
 		if(++turns>(3*3)){
@@ -142,12 +203,11 @@ int main(){
 
 		std::cout<<"Enter coords  for player "<<current_player<<": ";
 		std::cin>>move_input;
-	
+		
 		onUpdateBoard(move_input,current_player);
+				
 		current_player=current_player=="x"?"o":"x";
 	}
-    //sequence of play moves
-    //onUpdateBoard(board.str(),{1,2},"x");
-    //onUpdateBoard(board.str(),{3,3},"o");
-    //onUpdateBoard(board.str(),{3,2},"x");
+	
+
 }
