@@ -129,6 +129,7 @@ void onDrawBoard(std::map<int, std::vector<int>> const& coords){
 	//std::cout<<"Board is : \n"<<board.str()<<std::endl<<"Displayable board is :\n"<<getDisplayableBoardString(board.str())<<std::endl;
 }
 
+
 void onUpdateBoard(std::string & curr_board, std::vector <int> coords, std::string agent){
     //Si = |r|*(ir-1) + (ic-1)
     int board_str_update_idx=(4*(coords[0]-1))+(coords[1]-1);
@@ -158,7 +159,7 @@ void onUpdateBoard(const int board_pos, std::string const & agent){
 	curr_board_str.replace(board_pos-1,1,agent);
 
     std::cout<<getDisplayableBoardString(curr_board_str)<<std::endl;
-
+	
     board.str("");
 
     board<<curr_board_str;
